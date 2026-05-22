@@ -1,4 +1,4 @@
-streamlit
-requests
-python-docx
-pypdf
+streamlit>=1.32.0
+requests>=2.31.0
+python-docx>=1.1.0
+pypdf>=4.0.0
