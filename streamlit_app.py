@@ -462,8 +462,8 @@ def log_entry(entry: Dict[str, Any]) -> None:
         entry['session_id'] = st.session_state.get('session_id', 'unknown')
         with LOG_FILE.open('a', encoding='utf-8') as f:
             f.write(json.dumps(entry, ensure_ascii=False) + '\n')
-    except Exception:
-        pass
+    except Exception as e:
+        st.warning(f'⚠️ Ошибка записи лога: {e}')
 
 
 def load_history() -> List[Dict[str, Any]]:
@@ -948,8 +948,7 @@ def process_question(question: str, force_module: Optional[str] = None) -> None:
         clarify = needs_clarification(question, clarify_ctx)
         if clarify:
             answer = f'Пожалуйста, уточните:\n\n{clarify}'
-            st.session_state.conversation.append({'role': 'assistant', 'content': answer, 'timestamp': ts})
-            save_history(st.session_state.conversation)
+            _finish(answer, question, 'clarification', ctx, [])
             return
 
     # ── STAGE 2: RAG + Answer ─────────────────────────────────────────────────
@@ -1252,7 +1251,7 @@ def render_admin_panel() -> None:
         filter_intent = st.selectbox(
             'Intent',
             ['Все', 'build_report', 'analytics_help', 'compare', 'definition',
-             'navigation', 'contact', 'troubleshooting', 'history', 'other'],
+             'navigation', 'contact', 'troubleshooting', 'history', 'clarification', 'other'],
         )
 
     filtered = chat_logs[:]
